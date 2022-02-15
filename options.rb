@@ -10,11 +10,11 @@ git_url = 'https://github.com/systemd/systemd.git'
 
 logger = Logger.new STDERR
 
-# wd = Dir.mktmpdir "git-wd"
-wd = './repo'
+wd = Dir.mktmpdir 'git-wd'
+# wd = './repo'
 
-# repo = Rugged.clone_at(git_url, "systemd", path: wd, bare: true)
-r = Rugged::Repository.new "#{wd}/systemd.git"
+r = Rugged.clone_at(git_url, 'systemd', path: wd, bare: true)
+# r = Rugged::Repository.new "#{wd}/systemd.git"
 
 params = { versions: [], params: {} }
 
