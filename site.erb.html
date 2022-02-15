@@ -1,0 +1,66 @@
+<% params=JSON.load(open('params.json')) %>
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Systemd Params</title>
+    <style type='text/css'>
+      td.yes {
+        color: green;
+      }
+      td.no {
+        color: red;
+      }
+      td.bool {
+        text-align: center;
+        font-weight: bold;
+      }
+      table {
+        table-layout: fixed;
+        overlow-x: scroll;
+      }
+      a:any-link.active {
+        color: black;
+      }
+      a:any-link.deprecated {
+        font-style: italic;
+        text-decoration: none;
+        color: grey;
+      }
+      th.param {
+        text-align: left;
+        font-weight: normal;
+      }
+      div#params {
+        width: 1024px;
+        width: 100%;
+      }
+    </style>
+	</head>
+
+	<body>
+		<h1>Systemd Params by Version</h1>
+    <div id='params'>
+      <table border="1">
+        <tr>
+          <th>Param</th>
+          <% params["versions"].each do |v|%>
+          <th><%= v %></th>
+          <% end %>
+        </tr>
+        <% params["params"].each do |k,v|%>
+        <tr>
+          <th class='param'>
+            <a class='<%= v["versions"].include?(params["versions"].first) ? "active'" : "deprecated' onclick='return false;'" %> href="https://www.freedesktop.org/software/systemd/man/systemd.<%= v["section"] %>.html#<%= k %>="><%= k %></a>
+          </th>
+          <% params["versions"].each do |xv| %>
+          <td class="bool <%= v['versions'].include?(xv) ? 'yes' : 'no'%>"><%= v["versions"].include?(xv) ? "Y" : "N" %></td>
+          <% end %>
+        </tr>
+        <% end %>
+      </table>
+    </div>
+	</body>
+</html>

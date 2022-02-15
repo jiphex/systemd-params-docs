@@ -16,21 +16,27 @@ wd = './repo'
 # repo = Rugged.clone_at(git_url, "systemd", path: wd, bare: true)
 r = Rugged::Repository.new "#{wd}/systemd.git"
 
-version_params = {}
+params = { versions: [], params: {} }
 
 versions.each do |vv|
-  par = version_params["v#{vv}"] = {}
   logger.info "finding manpages for version #{vv}"
   manpage_files.each do |f|
     begin
       foid = (r.tags.find { |x| x.name == "v#{vv}" }).target.tree.path "man/systemd.#{f}.xml"
-      parp = par[f] = []
       mdata = r.read(foid[:oid]).data
       xf = Nokogiri::XML(mdata)
-      entries = xf.xpath('/refentry/refsect1/variablelist[@class="unit-directives"]/varlistentry')
+      entries = xf.xpath('/refentry/refsect1/variablelist[@class!="environment-variables"]/varlistentry')
       entries.each do |e|
-        name = e.xpath('term/varname').first.content
-        parp << name
+        e.xpath('term/varname').each do |ep|
+          name = ep.content.split(/=/)[0]
+          params[:params][name] = { versions: [], section: '' } if params[:params][name].nil?
+          # params[name][:versions] ||= Set.new
+          # params[name][:sections] ||= Set.new
+          params[:params][name][:versions] << vv
+          params[:params][name][:section] = f
+          params[:versions] << vv
+          # params[name][:sections] << f
+        end
       end
       # p entries['title']
       # p mdata
@@ -41,5 +47,6 @@ versions.each do |vv|
     end
   end
 end
-
-puts version_params.to_json
+params[:versions].uniq!.reverse!
+params[:params] = params[:params].sort
+puts params.to_json
